@@ -1,20 +1,8 @@
-metral
-==================
+# Metral
 
-# Usage
+[![Build Status](https://travis-ci.org/aiyanbo/metral.svg?branch=master)](https://travis-ci.org/aiyanbo/metral)
 
-```
-sbt run
-```
+Metral is a `message central` protocol. You can build some business upon it. like:
 
-# Scala Style
-
-```
-sbt scalastyle
-```
-
-# Scalafix
-
-```
-bin/scalafix
-```
+- Notify entity fire changed to help cache refresh
+- Business logic audit 
