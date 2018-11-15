@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package org.jmotor.metral.dto;
+option java_multiple_files = true;
+option java_package = "org.jmotor.metral.dto";
+option java_outer_classname = "MetralMessages";
+
+message FireChanged {
+  string entity = 1;
+  string identity = 2;
+  Operation operation = 3;
+  int64 timestamp = 4;
+}
+
+enum Operation {
+  CREATE = 0;
+  DELETE = 1;
+  MODIFY = 2;
+}

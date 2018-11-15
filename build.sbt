@@ -1,0 +1,28 @@
+import Dependencies._
+import ReleaseTransformations._
+
+name := "metral"
+
+organization := "org.jmotor.metral"
+
+scalaVersion := Versions.scala212
+
+libraryDependencies ++= dependencies
+
+enablePlugins(ProtocPlugin)
+
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  publishArtifacts,
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)
