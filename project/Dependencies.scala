@@ -17,7 +17,7 @@ object Dependencies {
     val config = "com.typesafe" % "config" % Versions.config
     val guava = "com.google.guava" % "guava" % Versions.guava
     val amqpClient = "com.rabbitmq" % "amqp-client" % Versions.amqpClient
-    val guice = "com.google.inject" % "guice" % Versions.guice exclude("com.google.guava", "guava")
+    val guice = "com.google.inject" % "guice" % Versions.guice exclude ("com.google.guava", "guava")
   }
 
   object Tests {
