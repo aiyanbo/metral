@@ -28,6 +28,9 @@ class NonaServiceImpl extends NonaService {
 
   @FireChanged(entity = "nona", operation = Operation.DELETE, identityParameterIndex = 0)
   override def deleteSyncById(id: Long): Unit = ()
+
+  @FireChanged(entity = K.n, operation = Operation.CREATE)
+  override def createSync(nano: Nona): Long = 13L
 }
 
 object K {

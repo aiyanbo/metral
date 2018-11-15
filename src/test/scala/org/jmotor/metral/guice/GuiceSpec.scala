@@ -4,7 +4,6 @@ import java.util.concurrent.CountDownLatch
 
 import com.google.common.eventbus.Subscribe
 import com.google.inject.{ AbstractModule, Guice }
-import com.typesafe.config.ConfigFactory
 import org.jmotor.metral.MessageCentral
 import org.jmotor.metral.dto.{ FireChanged, Operation }
 import org.jmotor.metral.service.impl.NonaServiceImpl
@@ -36,24 +35,29 @@ class GuiceSpec extends FunSuite {
 
     val service = injector.getInstance(classOf[NonaService])
 
-    val latch = new CountDownLatch(4)
+    val latch = new CountDownLatch(5)
     val recorder = new EventChangedRecorder(latch)
 
     metral.subscribeFireChange(name, recorder, global = true)
 
-    Await.result(service.createWithoutId(Nona(-1, "create without id")), 10.seconds)
+    val nona = Nona(-1, "create without id")
+    Await.result(service.createWithoutId(nona), 10.seconds)
     Await.result(service.update(Nona(10, "update")), 10.seconds)
     Await.result(service.deleteById(11), 10.seconds)
     service.deleteSyncById(12)
+    service.createSync(nona)
 
     latch.await()
 
     metral.shutdown()
 
-    assert(recorder.events.size == 4)
+    assert(recorder.events.size == 5)
 
     assert(recorder.events.exists { e ⇒
       e.getEntity == name && Operation.CREATE == e.getOperation && e.getIdentity == "1"
+    })
+    assert(recorder.events.exists { e ⇒
+      e.getEntity == name && Operation.CREATE == e.getOperation && e.getIdentity == "13"
     })
     assert(recorder.events.exists { e ⇒
       e.getEntity == name && Operation.MODIFY == e.getOperation && e.getIdentity == "10"

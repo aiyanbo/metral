@@ -21,6 +21,8 @@ trait NonaService {
 
   def deleteSyncById(id: Long): Unit
 
+  def createSync(nano: Nona): Long
+
 }
 
 class NonaUpdateTranslator extends IdentityTranslator {
