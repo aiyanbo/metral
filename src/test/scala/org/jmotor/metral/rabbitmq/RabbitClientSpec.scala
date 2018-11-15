@@ -43,6 +43,10 @@ class RabbitClientSpec extends FunSuite {
     }
 
     latch.await()
+
+    consumer.close()
+    producer.close()
+
   }
 
   class Recorder(latch: CountDownLatch) {

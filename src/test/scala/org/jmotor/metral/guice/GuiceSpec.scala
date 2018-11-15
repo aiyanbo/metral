@@ -26,14 +26,13 @@ class GuiceSpec extends FunSuite {
 
   test("method interceptor") {
     val name = "nona"
-    val config = ConfigFactory.load()
     val injector = Guice.createInjector(new AbstractModule {
       override def configure(): Unit = {
         bind(classOf[NonaService]).to(classOf[NonaServiceImpl])
       }
     }, new FireChangedModule)
 
-    val metral = MessageCentral(config)
+    val metral = MessageCentral()
 
     val service = injector.getInstance(classOf[NonaService])
 
@@ -48,6 +47,8 @@ class GuiceSpec extends FunSuite {
     service.deleteSyncById(12)
 
     latch.await()
+
+    metral.shutdown()
 
     assert(recorder.events.size == 4)
 
