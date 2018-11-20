@@ -11,6 +11,8 @@ libraryDependencies ++= dependencies
 
 enablePlugins(ProtocPlugin)
 
+releaseCrossBuild := true
+
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
 releaseProcess := Seq[ReleaseStep](
