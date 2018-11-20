@@ -8,7 +8,8 @@ import org.jmotor.metral.annotaion.FireChanged
 import org.jmotor.metral.dto.Operation
 import org.jmotor.metral.utils.ObjectUtils
 
-import scala.concurrent.{ ExecutionContext, ExecutionContextExecutor, Future }
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.language.implicitConversions
 
 /**
@@ -20,8 +21,8 @@ import scala.language.implicitConversions
  */
 class FireChangedInterceptor(bus: EventBus) extends MethodInterceptor {
   private[this] lazy final val MaxFireChangeQueueSize = 1000
-  private[this] lazy implicit val ec: ExecutionContextExecutor = ExecutionContext.fromExecutor(
-    new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue[Runnable](MaxFireChangeQueueSize)))
+  private[this] lazy final val executor = new ThreadPoolExecutor(
+    1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue[Runnable](MaxFireChangeQueueSize))
 
   override def invoke(invocation: MethodInvocation): AnyRef = {
     val result = invocation.proceed()
@@ -38,19 +39,23 @@ class FireChangedInterceptor(bus: EventBus) extends MethodInterceptor {
   }
 
   private[interceptor] def fireChange(invocation: MethodInvocation, obj: AnyRef): Unit = {
-    val annotation = invocation.getMethod.getAnnotation(classOf[FireChanged])
-    val parameterIndex = annotation.identityParameterIndex()
-    val identity: String = if (parameterIndex > -1) {
-      ObjectUtils.toString(invocation.getArguments()(parameterIndex))
-    } else {
-      annotation.operation() match {
-        case Operation.CREATE ⇒ annotation.returnTranslator().newInstance().translate(Array(obj))
-        case _                ⇒ annotation.parameterTranslator().newInstance().translate(invocation.getArguments)
+    executor.execute(new Runnable {
+      override def run(): Unit = {
+        val annotation = invocation.getMethod.getAnnotation(classOf[FireChanged])
+        val parameterIndex = annotation.identityParameterIndex()
+        val identity: String = if (parameterIndex > -1) {
+          ObjectUtils.toString(invocation.getArguments()(parameterIndex))
+        } else {
+          annotation.operation() match {
+            case Operation.CREATE ⇒ annotation.returnTranslator().newInstance().translate(Array(obj))
+            case _                ⇒ annotation.parameterTranslator().newInstance().translate(invocation.getArguments)
+          }
+        }
+        val fireChanged = org.jmotor.metral.dto.FireChanged.newBuilder().setEntity(annotation.entity())
+          .setIdentity(identity).setOperation(annotation.operation()).setTimestamp(System.currentTimeMillis()).build()
+        bus.post(fireChanged)
       }
-    }
-    val fireChanged = org.jmotor.metral.dto.FireChanged.newBuilder().setEntity(annotation.entity())
-      .setIdentity(identity).setOperation(annotation.operation()).setTimestamp(System.currentTimeMillis()).build()
-    bus.post(fireChanged)
+    })
   }
 
 }

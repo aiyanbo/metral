@@ -9,6 +9,7 @@ import org.jmotor.metral.MessageCentral
 import org.jmotor.metral.client.impl.{ RabbitConsumer, RabbitProducer }
 import org.jmotor.metral.client.{ ExchangeType, Producer }
 import org.jmotor.metral.dto.FireChanged
+import org.jmotor.metral.utils.Retryable
 
 import scala.util.Try
 
@@ -21,6 +22,7 @@ import scala.util.Try
  */
 class DefaultMessageCentral(config: Config) extends MessageCentral {
 
+  private[this] lazy val maxAttempts = 100
   private[this] val fireChangeExchange = "metral.fire-changes"
   private[this] lazy val producer = new RabbitProducer(config)
   private[this] lazy val consumer = new RabbitConsumer(config)
@@ -48,7 +50,7 @@ class DefaultMessageCentral(config: Config) extends MessageCentral {
   class FireChangeRecorder(producer: Producer) {
 
     @Subscribe def handleFireChange(e: FireChanged): Unit = {
-      producer.send(fireChangeExchange, e.getEntity, UUID.randomUUID().toString, e)
+      Retryable.retry(() ⇒ producer.send(fireChangeExchange, e.getEntity, UUID.randomUUID().toString, e))(maxAttempts)
     }
 
   }

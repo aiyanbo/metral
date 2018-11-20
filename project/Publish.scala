@@ -44,3 +44,14 @@ object Publish extends AutoPlugin {
         </developer>
       </developers>)
 }
+
+object DontPublish extends AutoPlugin {
+
+  override def requires: Plugins = plugins.IvyPlugin
+
+  override def projectSettings: Seq[_root_.sbt.Def.Setting[_]] = Seq(
+    publishArtifact := false,
+    publish := Unit,
+    publishLocal := Unit)
+
+}
