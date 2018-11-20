@@ -3,9 +3,10 @@ package org.jmotor.metral.client.impl
 import java.io.Closeable
 import java.util.Objects
 
-import com.rabbitmq.client.{ Channel, Connection, ConnectionFactory }
+import com.rabbitmq.client.{ Address, Channel, Connection, ConnectionFactory }
 import com.typesafe.config.Config
 
+import scala.collection.JavaConverters._
 import scala.util.Try
 
 /**
@@ -18,13 +19,16 @@ import scala.util.Try
 class RabbitClient(config: Config) extends Closeable {
 
   private[this] val lock: Object = new Object
-  private[this] val factory = buildConnectionFactory(config.getConfig("metral.rabbit"))
+  private[this] val rabbitConfig: Config = config.getConfig("metral.rabbit")
+  private[this] val hostsOpt = Try(rabbitConfig.getStringList("hosts")).toOption
+  private[this] val port = rabbitConfig.getInt("port")
+  private[this] val factory = buildConnectionFactory(rabbitConfig)
   private[this] var channel: Channel = _
   private[this] var connection: Connection = _
 
   private[impl] def buildConnectionFactory(config: Config): ConnectionFactory = {
     val factory = new ConnectionFactory()
-    factory.setPort(config.getInt("port"))
+    factory.setPort(port)
     factory.setHost(config.getString("host"))
     factory.setUsername(config.getString("username"))
     factory.setPassword(config.getString("password"))
@@ -45,7 +49,10 @@ class RabbitClient(config: Config) extends Closeable {
 
   private[impl] def getConnection: Connection = {
     if (Objects.isNull(connection) || !connection.isOpen) {
-      connection = factory.newConnection()
+      connection = hostsOpt.fold(factory.newConnection()) { hosts ⇒
+        val addrs = hosts.asScala.map(host ⇒ new Address(host, port)).asJava
+        factory.newConnection(addrs)
+      }
     }
     connection
   }
