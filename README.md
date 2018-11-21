@@ -1,6 +1,7 @@
 # Metral
 
 [![Build Status](https://travis-ci.org/aiyanbo/metral.svg?branch=master)](https://travis-ci.org/aiyanbo/metral)
+![GitHub release](https://img.shields.io/github/release/aiyanbo/metral.svg)
 [![codecov](https://codecov.io/gh/aiyanbo/metral/branch/master/graph/badge.svg)](https://codecov.io/gh/aiyanbo/metral)
 [![Coverage Status](https://coveralls.io/repos/github/aiyanbo/metral/badge.svg?branch=master)](https://coveralls.io/github/aiyanbo/metral?branch=master)
 
