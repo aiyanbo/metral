@@ -4,7 +4,7 @@ import java.util.concurrent.CountDownLatch
 
 import com.google.common.eventbus.Subscribe
 import com.google.inject.{ AbstractModule, Guice }
-import org.jmotor.metral.MessageCentral
+import org.jmotor.metral.{ MessageCentral, SubscribePolicy }
 import org.jmotor.metral.dto.{ FireChanged, Operation }
 import org.jmotor.metral.service.impl.NonaServiceImpl
 import org.jmotor.metral.service.{ Nona, NonaService }
@@ -38,7 +38,7 @@ class GuiceSpec extends FunSuite {
     val latch = new CountDownLatch(5)
     val recorder = new EventChangedRecorder(latch)
 
-    metral.subscribeFireChange(name, recorder, global = true)
+    metral.subscribeFireChange(name, recorder, SubscribePolicy.GLOBAL)
 
     val nona = Nona(-1, "create without id")
     Await.result(service.createWithoutId(nona), 10.seconds)

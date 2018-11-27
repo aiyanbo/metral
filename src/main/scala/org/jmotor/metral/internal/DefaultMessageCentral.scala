@@ -5,7 +5,7 @@ import java.util.UUID
 
 import com.google.common.eventbus.Subscribe
 import com.typesafe.config.Config
-import org.jmotor.metral.MessageCentral
+import org.jmotor.metral.{ MessageCentral, SubscribePolicy }
 import org.jmotor.metral.client.impl.{ RabbitConsumer, RabbitProducer }
 import org.jmotor.metral.client.{ ExchangeType, Producer }
 import org.jmotor.metral.dto.FireChanged
@@ -29,9 +29,9 @@ class DefaultMessageCentral(config: Config) extends MessageCentral {
   private[this] lazy val hostname = InetAddress.getLocalHost.getHostName
   private[this] lazy val namespace: String = config.getString("metral.namespace")
 
-  override def subscribeFireChange(entity: String, obj: AnyRef, global: Boolean): Unit = {
-    val queue = if (global) s"$namespace.fire-changes.$entity" else s"$namespace.$hostname.fire-changes.$entity"
-    consumer.bind(fireChangeExchange, queue, entity, global)
+  override def subscribeFireChange(entity: String, obj: AnyRef, policy: SubscribePolicy): Unit = {
+    val queue = getQueueName(entity, policy)
+    consumer.bind(fireChangeExchange, queue, entity, policy.isDurable)
     consumer.subscribe(queue, EventBuses.FIRE_CHANGE_RECEIVER)
     EventBuses.FIRE_CHANGE_RECEIVER.register(obj)
   }
@@ -45,6 +45,11 @@ class DefaultMessageCentral(config: Config) extends MessageCentral {
     producer.declare(fireChangeExchange, ExchangeType.DIRECT)
     EventBuses.FIRE_CHANGE_SENDER.register(new FireChangeRecorder(producer))
     this
+  }
+
+  private[internal] def getQueueName(entity: String, policy: SubscribePolicy): String = {
+    val queue = if (policy.isGlobal) s"$namespace.fire-changes.$entity" else s"$namespace.$hostname.fire-changes.$entity"
+    if (policy.isDurable) "ha." + queue else queue
   }
 
   class FireChangeRecorder(producer: Producer) {

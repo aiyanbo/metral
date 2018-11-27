@@ -12,7 +12,7 @@ import org.jmotor.metral.internal.DefaultMessageCentral
  */
 trait MessageCentral {
 
-  def subscribeFireChange(entity: String, obj: AnyRef, global: Boolean): Unit
+  def subscribeFireChange(entity: String, obj: AnyRef, policy: SubscribePolicy): Unit
 
   def shutdown(): Unit
 
