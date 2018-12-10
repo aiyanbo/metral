@@ -11,3 +11,15 @@ Metral is a `message central` protocol. You can build some business upon it. lik
 - Indexing
 - Notify entity fire changed to help cache refresh
 - Business logic audit 
+
+## Adding Metral to your build
+
+To add a dependency on Metral using SBT, use the following:
+
+```
+"org.jmotor.metral" %% "metral" % "1.0.1"
+```
+
+## Learn about Metral
+
+TBD
