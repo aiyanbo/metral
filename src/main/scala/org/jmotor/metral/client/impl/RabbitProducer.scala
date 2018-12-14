@@ -22,7 +22,7 @@ class RabbitProducer(config: Config) extends RabbitClient(config) with Producer 
   private[this] val exchanges: Cache[String, Exchange.DeclareOk] = CacheBuilder.newBuilder().build()
 
   override def declare(exchange: String, typ: ExchangeType): Unit = {
-    val channel = getChannel
+    val channel = getOrCreateChannel
     exchanges.get(exchange, new Callable[Exchange.DeclareOk] {
       override def call(): Exchange.DeclareOk = {
         val exchangeType = BuiltinExchangeType.valueOf(typ.toString)
@@ -40,7 +40,7 @@ class RabbitProducer(config: Config) extends RabbitClient(config) with Producer 
   }
 
   private[impl] def doSend(exchange: String, key: String, message: AbstractMessage, routing: Option[String] = None): Unit = {
-    val channel = getChannel
+    val channel = getOrCreateChannel
     val proto = message.getDescriptorForType.getFullName
     val properties = new BasicProperties.Builder().messageId(key)
       .contentType("application/protobuf").`type`(proto).build()

@@ -4,6 +4,7 @@ object Dependencies {
 
   object Versions {
     val guice = "4.2.2"
+    val log4j2 = "11.0"
     val config = "1.3.3"
     val scala212 = "2.12.7"
     val scalatest = "3.0.5"
@@ -17,6 +18,7 @@ object Dependencies {
     val config = "com.typesafe" % "config" % Versions.config
     val guava = "com.google.guava" % "guava" % Versions.guava
     val amqpClient = "com.rabbitmq" % "amqp-client" % Versions.amqpClient
+    val log4j2 = "org.apache.logging.log4j" %% "log4j-api-scala" % Versions.log4j2
     val guice = "com.google.inject" % "guice" % Versions.guice exclude ("com.google.guava", "guava")
   }
 
@@ -26,6 +28,6 @@ object Dependencies {
 
   import Compiles._
 
-  lazy val dependencies: Seq[ModuleID] = Seq(config, guice, guava, amqpClient, Tests.scalaTest)
+  lazy val dependencies: Seq[ModuleID] = Seq(config, guice, guava, log4j2, amqpClient, Tests.scalaTest)
 
 }

@@ -1,6 +1,8 @@
 package org.jmotor.metral
 
 import com.typesafe.config.{ Config, ConfigFactory }
+import org.jmotor.metral.api.{ Exchange, MessageHandler }
+import org.jmotor.metral.dto.Message
 import org.jmotor.metral.internal.DefaultMessageCentral
 
 /**
@@ -12,7 +14,13 @@ import org.jmotor.metral.internal.DefaultMessageCentral
  */
 trait MessageCentral {
 
+  def declare(exchange: Exchange): Unit
+
+  def send(exchange: String, message: Message): Unit
+
   def subscribeFireChange(entity: String, obj: AnyRef, policy: SubscribePolicy): Unit
+
+  def subscribe(exchange: String, topic: String, policy: SubscribePolicy, handler: MessageHandler): Unit
 
   def shutdown(): Unit
 

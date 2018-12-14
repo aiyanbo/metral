@@ -22,9 +22,9 @@ class SubscribePolicySpec extends FunSuite {
 
     val mc = new DefaultMessageCentral(ConfigFactory.load())
 
-    assert(s"ha.metral.fire-changes.$entity" == mc.getQueueName(entity, SubscribePolicy.GLOBAL))
-    assert(s"metral.$hostname.fire-changes.$entity" == mc.getQueueName(entity, SubscribePolicy.INSTANCE))
-    assert(s"ha.metral.$hostname.fire-changes.$entity" == mc.getQueueName(entity, SubscribePolicy.INSTANCE_DURABLE))
+    assert(s"ha.metral.fire-changes.$entity" == mc.getFireChangeQueueName(entity, SubscribePolicy.GLOBAL))
+    assert(s"metral.$hostname.fire-changes.$entity" == mc.getFireChangeQueueName(entity, SubscribePolicy.INSTANCE))
+    assert(s"ha.metral.$hostname.fire-changes.$entity" == mc.getFireChangeQueueName(entity, SubscribePolicy.INSTANCE_DURABLE))
 
   }
 

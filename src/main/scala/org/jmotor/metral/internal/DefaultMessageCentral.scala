@@ -5,10 +5,11 @@ import java.util.UUID
 
 import com.google.common.eventbus.Subscribe
 import com.typesafe.config.Config
+import org.jmotor.metral.api.{ Exchange, MessageHandler }
 import org.jmotor.metral.{ MessageCentral, SubscribePolicy }
 import org.jmotor.metral.client.impl.{ RabbitConsumer, RabbitProducer }
 import org.jmotor.metral.client.{ ExchangeType, Producer }
-import org.jmotor.metral.dto.FireChanged
+import org.jmotor.metral.dto.{ FireChanged, Message }
 import org.jmotor.metral.utils.Retryable
 
 import scala.util.Try
@@ -29,11 +30,25 @@ class DefaultMessageCentral(config: Config) extends MessageCentral {
   private[this] lazy val hostname = InetAddress.getLocalHost.getHostName
   private[this] lazy val namespace: String = config.getString("metral.namespace")
 
+  override def declare(exchange: Exchange): Unit = {
+    producer.declare(exchange.name, exchange.typ)
+  }
+
+  override def send(exchange: String, message: Message): Unit = {
+    producer.send(exchange, message.getTopic, message.getId, message)
+  }
+
   override def subscribeFireChange(entity: String, obj: AnyRef, policy: SubscribePolicy): Unit = {
-    val queue = getQueueName(entity, policy)
+    val queue = getFireChangeQueueName(entity, policy)
     consumer.bind(fireChangeExchange, queue, entity, policy.isDurable)
     consumer.subscribe(queue, EventBuses.FIRE_CHANGE_RECEIVER)
     EventBuses.FIRE_CHANGE_RECEIVER.register(obj)
+  }
+
+  override def subscribe(exchange: String, topic: String, policy: SubscribePolicy, handler: MessageHandler): Unit = {
+    val queue = getQueueName(exchange, topic, policy)
+    consumer.bind(exchange, queue, topic, policy.isDurable)
+    consumer.subscribe(queue, handler)
   }
 
   override def shutdown(): Unit = {
@@ -47,8 +62,13 @@ class DefaultMessageCentral(config: Config) extends MessageCentral {
     this
   }
 
-  private[internal] def getQueueName(entity: String, policy: SubscribePolicy): String = {
+  private[internal] def getFireChangeQueueName(entity: String, policy: SubscribePolicy): String = {
     val queue = if (policy.isGlobal) s"$namespace.fire-changes.$entity" else s"$namespace.$hostname.fire-changes.$entity"
+    if (policy.isDurable) "ha." + queue else queue
+  }
+
+  private[internal] def getQueueName(exchange: String, topic: String, policy: SubscribePolicy): String = {
+    val queue = if (policy.isGlobal) s"$namespace.$exchange.$topic" else s"$namespace.$hostname.$exchange.$topic"
     if (policy.isDurable) "ha." + queue else queue
   }
 

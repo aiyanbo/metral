@@ -8,7 +8,14 @@ import com.google.protobuf.{ AbstractMessage, AbstractParser }
 import com.rabbitmq.client.AMQP.Queue
 import com.rabbitmq.client.{ AMQP, DefaultConsumer, Envelope }
 import com.typesafe.config.Config
+import org.apache.logging.log4j.scala.Logging
+import org.jmotor.metral.api.{ Acknowledge, MessageHandler }
 import org.jmotor.metral.client.Consumer
+import org.jmotor.metral.dto.Message
+import org.jmotor.metral.utils.Retryable
+import scala.concurrent.duration._
+
+import scala.util.control.NonFatal
 
 /**
  * Component:
@@ -17,23 +24,50 @@ import org.jmotor.metral.client.Consumer
  *
  * @author AI
  */
-class RabbitConsumer(config: Config) extends RabbitClient(config) with Consumer {
+class RabbitConsumer(config: Config) extends RabbitClient(config) with Consumer with Logging {
+  private[this] val retrayDuration = 10.seconds
   private[this] val queues: Cache[String, Queue.BindOk] = CacheBuilder.newBuilder().build()
   private[this] val parsers: Cache[String, AbstractParser[AbstractMessage]] = CacheBuilder.newBuilder().build()
 
   override def subscribe(queue: String, eventBus: EventBus): Unit = {
-    val channel = getChannel
+    val channel = getOrCreateChannel
     val consumer = new DefaultConsumer(channel) {
       override def handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: Array[Byte]): Unit = {
         parseMessage(properties, body).foreach(message ⇒ eventBus.post(message))
       }
     }
-    channel.basicQos(1)
-    channel.basicConsume(queue, true, consumer)
+    Retryable.retryDuration(() ⇒ {
+      channel.basicQos(1)
+      channel.basicConsume(queue, true, consumer)
+    })(retrayDuration)
+  }
+
+  override def subscribe(queue: String, handler: MessageHandler): Unit = {
+    val channel = getOrCreateChannel
+    val consumer = new DefaultConsumer(channel) {
+      override def handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: Array[Byte]): Unit = {
+        val deliveryTag = envelope.getDeliveryTag
+        try {
+          parseMessage(properties, body).foreach { message ⇒
+            handler.handle(message.asInstanceOf[Message], new Acknowledge {
+              override def ack(): Unit = {
+                getOrCreateChannel.basicAck(deliveryTag, false)
+              }
+            })
+          }
+        } catch {
+          case NonFatal(t) ⇒ logger.error(t.getLocalizedMessage, t)
+        }
+      }
+    }
+    Retryable.retryDuration(() ⇒ {
+      channel.basicQos(1)
+      channel.basicConsume(queue, false, consumer)
+    })(retrayDuration)
   }
 
   override def bind(exchange: String, queue: String, routing: String, durable: Boolean): Unit = {
-    val channel = getChannel
+    val channel = getOrCreateChannel
     queues.get(queue, new Callable[Queue.BindOk] {
       override def call(): Queue.BindOk = {
         channel.queueDeclare(queue, durable, false, !durable, null)

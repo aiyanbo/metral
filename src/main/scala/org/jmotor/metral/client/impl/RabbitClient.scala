@@ -33,18 +33,18 @@ class RabbitClient(config: Config) extends Closeable {
     factory
   }
 
-  protected def getChannel: Channel = {
+  protected def getOrCreateChannel: Channel = {
     if (Objects.isNull(channel) || !channel.isOpen) {
       lock.synchronized {
         if (Objects.isNull(channel) || !channel.isOpen) {
-          channel = getConnection.createChannel()
+          channel = getOrCreateConnection.createChannel()
         }
       }
     }
     channel
   }
 
-  private[impl] def getConnection: Connection = {
+  private[impl] def getOrCreateConnection: Connection = {
     if (Objects.isNull(connection) || !connection.isOpen) {
       val port = rabbitConfig.getInt("port")
       Try(rabbitConfig.getStringList("hosts")) match {
