@@ -3,7 +3,8 @@ package org.jmotor.metral.internal
 import java.util.concurrent.CountDownLatch
 
 import com.typesafe.config.ConfigFactory
-import org.jmotor.metral.api.{ Acknowledge, MessageHandler }
+import org.jmotor.metral.api.{ Acknowledge, Exchange, MessageHandler }
+import org.jmotor.metral.client.ExchangeType
 import org.jmotor.metral.{ MessageCentral, SubscribePolicy }
 import org.jmotor.metral.dto.Message
 import org.scalatest.FunSuite
@@ -24,6 +25,8 @@ class MessageCentralSpec extends FunSuite {
 
     val topic = "download-job"
     val exchange = "global.jobs"
+
+    mc.declare(Exchange(exchange, ExchangeType.DIRECT))
 
     mc.subscribe(exchange, topic, SubscribePolicy.GLOBAL, new MessageHandler {
       override def handle(message: Message, ack: Acknowledge): Unit = {
