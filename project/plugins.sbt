@@ -1,6 +1,6 @@
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.2")
 
-addSbtPlugin("org.jmotor.sbt" % "sbt-protoc" % "1.0.4")
+addSbtPlugin("org.jmotor.sbt" % "sbt-protoc" % "1.0.6")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 
