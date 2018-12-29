@@ -5,7 +5,7 @@ import java.util.concurrent.CountDownLatch
 
 import com.google.common.eventbus.{ EventBus, Subscribe }
 import com.typesafe.config.ConfigFactory
-import org.jmotor.metral.api.Acknowledge
+import org.jmotor.metral.api.{ Acknowledge, MessageHandler }
 import org.jmotor.metral.client.ExchangeType
 import org.jmotor.metral.client.impl.{ RabbitConsumer, RabbitProducer }
 import org.jmotor.metral.dto.{ FireChanged, Message, Operation }
@@ -63,10 +63,12 @@ class RabbitClientSpec extends FunSuite {
     val topic = "download-job"
     val queue = "global.jobs." + topic
     consumer.bind(exchange, queue, topic, durable = true)
-    consumer.subscribe(queue, (message: Message, ack: Acknowledge) ⇒ {
-      assert(message.getTopic == topic)
-      ack.ack()
-      latch.countDown()
+    consumer.subscribe(queue, new MessageHandler {
+      override def handle(message: Message, ack: Acknowledge): Unit = {
+        assert(message.getTopic == topic)
+        ack.ack()
+        latch.countDown()
+      }
     })
 
     (1 to 100).foreach { id ⇒
