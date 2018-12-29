@@ -5,9 +5,10 @@ import java.util.concurrent.CountDownLatch
 
 import com.google.common.eventbus.{ EventBus, Subscribe }
 import com.typesafe.config.ConfigFactory
+import org.jmotor.metral.api.Acknowledge
 import org.jmotor.metral.client.ExchangeType
 import org.jmotor.metral.client.impl.{ RabbitConsumer, RabbitProducer }
-import org.jmotor.metral.dto.{ FireChanged, Operation }
+import org.jmotor.metral.dto.{ FireChanged, Message, Operation }
 import org.scalatest.FunSuite
 
 /**
@@ -40,6 +41,37 @@ class RabbitClientSpec extends FunSuite {
       producer.send(exchange, "metrics", UUID.randomUUID().toString,
         FireChanged.newBuilder().setEntity("metrics").setIdentity(String.valueOf(id)).setOperation(Operation.CREATE).setTimestamp(System.currentTimeMillis())
           .build())
+    }
+
+    latch.await()
+
+    consumer.close()
+    producer.close()
+
+  }
+
+  test("send and subscribe") {
+
+    val config = ConfigFactory.load()
+
+    val producer = new RabbitProducer(config)
+    val exchange = "global.jobs"
+    producer.declare(exchange, ExchangeType.DIRECT)
+
+    val latch = new CountDownLatch(100)
+    val consumer = new RabbitConsumer(config)
+    val topic = "download-job"
+    val queue = "global.jobs." + topic
+    consumer.bind(exchange, queue, topic, durable = true)
+    consumer.subscribe(queue, (message: Message, ack: Acknowledge) ⇒ {
+      assert(message.getTopic == topic)
+      ack.ack()
+      latch.countDown()
+    })
+
+    (1 to 100).foreach { id ⇒
+      producer.send(exchange, topic, UUID.randomUUID().toString,
+        Message.newBuilder().setTopic(topic).build())
     }
 
     latch.await()
