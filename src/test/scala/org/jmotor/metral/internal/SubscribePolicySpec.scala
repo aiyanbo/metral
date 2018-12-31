@@ -30,6 +30,8 @@ class SubscribePolicySpec extends FunSuite {
     assert(s"metral.$hostname.global.jobs.$entity" == mc.getQueueName("global.jobs", entity, SubscribePolicy.INSTANCE))
     assert(s"ha.metral.$hostname.global.jobs.$entity" == mc.getQueueName("global.jobs", entity, SubscribePolicy.INSTANCE_DURABLE))
 
+    mc.shutdown()
+
   }
 
 }

@@ -4,8 +4,8 @@ import java.util.concurrent.CountDownLatch
 
 import org.scalatest.FunSuite
 
-import scala.util.control.NonFatal
 import scala.concurrent.duration._
+import scala.util.control.NonFatal
 
 /**
  * Component:
@@ -31,21 +31,21 @@ class RetryableSpec extends FunSuite {
     }
   }
 
-//  test("retry duration") {
-//    val timeout = 1.seconds
-//    val started = System.currentTimeMillis()
-//    val latch = new CountDownLatch(3)
-//    val thread = new Thread() {
-//      override def run(): Unit = {
-//        Retryable.retryDuration(() ⇒ {
-//          latch.countDown()
-//          throw new NullPointerException
-//        })(timeout)
-//      }
-//    }
-//    thread.start()
-//    latch.await()
-//    assert(System.currentTimeMillis() - started >= 2.seconds.toMillis)
-//  }
+  test("retry duration") {
+    val timeout = 1.seconds
+    val started = System.currentTimeMillis()
+    val latch = new CountDownLatch(3)
+    val thread = new Thread() {
+      override def run(): Unit = {
+        Retryable.retryDuration(() ⇒ {
+          latch.countDown()
+          throw new NullPointerException
+        })(timeout)
+      }
+    }
+    thread.start()
+    latch.await()
+    assert(System.currentTimeMillis() - started >= 2.seconds.toMillis)
+  }
 
 }

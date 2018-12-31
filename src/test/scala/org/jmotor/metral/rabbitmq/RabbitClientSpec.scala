@@ -45,8 +45,8 @@ class RabbitClientSpec extends FunSuite {
 
     latch.await()
 
-    consumer.close()
     producer.close()
+    consumer.close()
 
   }
 
@@ -78,8 +78,8 @@ class RabbitClientSpec extends FunSuite {
 
     latch.await()
 
-    consumer.close()
     producer.close()
+    consumer.close()
 
   }
 
