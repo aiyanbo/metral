@@ -17,19 +17,19 @@ trait SubscribePolicy {
 
 object SubscribePolicy {
 
-  lazy val GLOBAL: SubscribePolicy = new SubscribePolicy {
+  lazy final val GLOBAL: SubscribePolicy = new SubscribePolicy {
     override def isGlobal: Boolean = true
 
     override def isDurable: Boolean = true
   }
 
-  lazy val INSTANCE: SubscribePolicy = new SubscribePolicy {
+  lazy final val INSTANCE: SubscribePolicy = new SubscribePolicy {
     override def isGlobal: Boolean = false
 
     override def isDurable: Boolean = false
   }
 
-  lazy val INSTANCE_DURABLE: SubscribePolicy = new SubscribePolicy {
+  lazy final val INSTANCE_DURABLE: SubscribePolicy = new SubscribePolicy {
     override def isGlobal: Boolean = false
 
     override def isDurable: Boolean = true

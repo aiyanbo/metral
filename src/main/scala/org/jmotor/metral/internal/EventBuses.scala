@@ -11,8 +11,8 @@ import com.google.common.eventbus.EventBus
  */
 object EventBuses {
 
-  lazy val FIRE_CHANGE_SENDER = new EventBus("fire-changes-sender")
+  lazy final val FIRE_CHANGE_SENDER = new EventBus("fire-changes-sender")
 
-  lazy val FIRE_CHANGE_RECEIVER = new EventBus("fire-changes-receiver")
+  lazy final val FIRE_CHANGE_RECEIVER = new EventBus("fire-changes-receiver")
 
 }
