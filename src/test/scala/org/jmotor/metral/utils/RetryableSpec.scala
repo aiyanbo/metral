@@ -31,7 +31,7 @@ class RetryableSpec extends FunSuite {
     }
   }
 
-  test("retry duration") {
+  test("retry duration 3") {
     val timeout = 1.seconds
     val started = System.currentTimeMillis()
     val latch = new CountDownLatch(3)
@@ -40,7 +40,7 @@ class RetryableSpec extends FunSuite {
         Retryable.retryDuration(() ⇒ {
           latch.countDown()
           throw new NullPointerException
-        })(timeout)
+        })(timeout, 3)
       }
     }
     thread.start()

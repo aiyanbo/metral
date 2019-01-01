@@ -25,7 +25,8 @@ import scala.util.control.NonFatal
  * @author AI
  */
 class RabbitConsumer(config: Config) extends RabbitClient(config) with Consumer with Logging {
-  private[this] val retrayDuration = 10.seconds
+  private[this] val maxAttempts = 100
+  private[this] val retryDuration = 10.seconds
   private[this] val queues: Cache[String, Queue.BindOk] = CacheBuilder.newBuilder().build()
   private[this] val parsers: Cache[String, AbstractParser[AbstractMessage]] = CacheBuilder.newBuilder().build()
 
@@ -39,7 +40,7 @@ class RabbitConsumer(config: Config) extends RabbitClient(config) with Consumer 
     Retryable.retryDuration(() ⇒ {
       channel.basicQos(1)
       channel.basicConsume(queue, true, consumer)
-    })(retrayDuration)
+    })(retryDuration, maxAttempts)
   }
 
   override def subscribe(queue: String, handler: MessageHandler): Unit = {
@@ -63,7 +64,7 @@ class RabbitConsumer(config: Config) extends RabbitClient(config) with Consumer 
     Retryable.retryDuration(() ⇒ {
       channel.basicQos(1)
       channel.basicConsume(queue, false, consumer)
-    })(retrayDuration)
+    })(retryDuration, maxAttempts)
   }
 
   override def bind(exchange: String, queue: String, routing: String, durable: Boolean): Unit = {

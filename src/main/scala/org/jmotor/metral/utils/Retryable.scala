@@ -22,13 +22,13 @@ object Retryable extends Logging {
     }
   }
 
-  def retryDuration[T](execution: () ⇒ T)(duration: Duration): T = {
+  def retryDuration[T](execution: () ⇒ T)(duration: Duration, attempts: Int): T = {
     Try(execution()) match {
       case Success(r) ⇒ r
-      case Failure(t) ⇒
+      case Failure(t) if attempts > 0 ⇒
         logger.error(t.getLocalizedMessage, t)
         Thread.sleep(duration.toMillis)
-        retryDuration(execution)(duration)
+        retryDuration(execution)(duration, attempts - 1)
     }
   }
 
