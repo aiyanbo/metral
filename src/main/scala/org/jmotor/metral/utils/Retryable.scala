@@ -29,6 +29,7 @@ object Retryable extends Logging {
         logger.error(t.getLocalizedMessage, t)
         Thread.sleep(duration.toMillis)
         retryDuration(execution)(duration, attempts - 1)
+      case Failure(t) ⇒ throw t
     }
   }
 
