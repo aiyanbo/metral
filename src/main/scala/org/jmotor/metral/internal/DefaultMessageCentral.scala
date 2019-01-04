@@ -1,16 +1,13 @@
 package org.jmotor.metral.internal
 
 import java.net.InetAddress
-import java.util.UUID
 
-import com.google.common.eventbus.Subscribe
 import com.typesafe.config.Config
 import org.jmotor.metral.api.{ Exchange, MessageHandler }
-import org.jmotor.metral.{ MessageCentral, SubscribePolicy }
+import org.jmotor.metral.client.ExchangeType
 import org.jmotor.metral.client.impl.{ RabbitConsumer, RabbitProducer }
-import org.jmotor.metral.client.{ ExchangeType, Producer }
-import org.jmotor.metral.dto.{ FireChanged, Message }
-import org.jmotor.metral.utils.Retryable
+import org.jmotor.metral.dto.Message
+import org.jmotor.metral.{ MessageCentral, SubscribePolicy }
 
 import scala.util.Try
 
@@ -23,7 +20,6 @@ import scala.util.Try
  */
 class DefaultMessageCentral(config: Config) extends MessageCentral {
 
-  private[this] lazy val maxAttempts = 100
   private[this] val fireChangeExchange = "metral.fire-changes"
   private[this] lazy val producer = new RabbitProducer(config)
   private[this] lazy val consumer = new RabbitConsumer(config)
@@ -58,7 +54,7 @@ class DefaultMessageCentral(config: Config) extends MessageCentral {
 
   def init(): DefaultMessageCentral = {
     producer.declare(fireChangeExchange, ExchangeType.DIRECT)
-    EventBuses.FIRE_CHANGE_SENDER.register(new FireChangeRecorder(producer))
+    EventBuses.FIRE_CHANGE_SENDER.register(new FireChangeRecorder(fireChangeExchange, producer))
     this
   }
 
@@ -70,14 +66,6 @@ class DefaultMessageCentral(config: Config) extends MessageCentral {
   private[internal] def getQueueName(exchange: String, topic: String, policy: SubscribePolicy): String = {
     val queue = if (policy.isGlobal) s"$namespace.$exchange.$topic" else s"$namespace.$hostname.$exchange.$topic"
     if (policy.isDurable) "ha." + queue else queue
-  }
-
-  class FireChangeRecorder(producer: Producer) {
-
-    @Subscribe def handleFireChange(e: FireChanged): Unit = {
-      Retryable.retry(() ⇒ producer.send(fireChangeExchange, e.getEntity, UUID.randomUUID().toString, e))(maxAttempts)
-    }
-
   }
 
 }

@@ -28,19 +28,8 @@ trait MessageCentral {
 
 object MessageCentral {
 
-  private[this] var instance: MessageCentral = _
-
   def apply(): MessageCentral = apply(ConfigFactory.load())
 
-  def apply(config: Config): MessageCentral = {
-    if (Option(instance).isEmpty) {
-      this.synchronized {
-        if (Option(instance).isEmpty) {
-          instance = new DefaultMessageCentral(config).init()
-        }
-      }
-    }
-    instance
-  }
+  def apply(config: Config): MessageCentral = new DefaultMessageCentral(config).init()
 
 }
