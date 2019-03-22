@@ -4,6 +4,8 @@ import java.util.UUID
 import java.util.concurrent.CountDownLatch
 
 import com.google.common.eventbus.{ EventBus, Subscribe }
+import com.google.common.primitives.{ Ints, Longs }
+import com.google.protobuf.ByteString
 import com.typesafe.config.ConfigFactory
 import org.jmotor.metral.api.{ Acknowledge, MessageHandler }
 import org.jmotor.metral.client.ExchangeType
@@ -39,7 +41,9 @@ class RabbitClientSpec extends FunSuite {
 
     (1 to 100).foreach { id ⇒
       producer.send(exchange, "metrics", UUID.randomUUID().toString,
-        FireChanged.newBuilder().setEntity("metrics").setIdentity(String.valueOf(id)).setOperation(Operation.CREATE).setTimestamp(System.currentTimeMillis())
+        FireChanged.newBuilder().setEntity("metrics")
+          .setIdentity(ByteString.copyFrom(Ints.toByteArray(id)))
+          .setOperation(Operation.CREATE).setTimestamp(System.currentTimeMillis())
           .build())
     }
 

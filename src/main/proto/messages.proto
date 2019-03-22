@@ -7,9 +7,10 @@ option java_outer_classname = "MetralMessages";
 
 message FireChanged {
   string entity = 1;
-  string identity = 2;
+  bytes identity = 2;
   Operation operation = 3;
   int64 timestamp = 4;
+  map<string, bytes> attributes = 5;
 }
 
 message Message {

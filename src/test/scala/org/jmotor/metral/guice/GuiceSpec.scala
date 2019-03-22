@@ -3,6 +3,7 @@ package org.jmotor.metral.guice
 import java.util.concurrent.CountDownLatch
 
 import com.google.common.eventbus.Subscribe
+import com.google.common.primitives.Longs
 import com.google.inject.{ AbstractModule, Guice }
 import org.jmotor.metral.{ MessageCentral, SubscribePolicy }
 import org.jmotor.metral.dto.{ FireChanged, Operation }
@@ -54,19 +55,19 @@ class GuiceSpec extends FunSuite {
     assert(recorder.events.size == 5)
 
     assert(recorder.events.exists { e ⇒
-      e.getEntity == name && Operation.CREATE == e.getOperation && e.getIdentity == "1"
+      e.getEntity == name && Operation.CREATE == e.getOperation && 1 == Longs.fromByteArray(e.getIdentity.toByteArray)
     })
     assert(recorder.events.exists { e ⇒
-      e.getEntity == name && Operation.CREATE == e.getOperation && e.getIdentity == "13"
+      e.getEntity == name && Operation.CREATE == e.getOperation && 13 == Longs.fromByteArray(e.getIdentity.toByteArray)
     })
     assert(recorder.events.exists { e ⇒
-      e.getEntity == name && Operation.MODIFY == e.getOperation && e.getIdentity == "10"
+      e.getEntity == name && Operation.MODIFY == e.getOperation && 10 == Longs.fromByteArray(e.getIdentity.toByteArray)
     })
     assert(recorder.events.exists { e ⇒
-      e.getEntity == name && Operation.DELETE == e.getOperation && e.getIdentity == "11"
+      e.getEntity == name && Operation.DELETE == e.getOperation && 11 == Longs.fromByteArray(e.getIdentity.toByteArray)
     })
     assert(recorder.events.exists { e ⇒
-      e.getEntity == name && Operation.DELETE == e.getOperation && e.getIdentity == "12"
+      e.getEntity == name && Operation.DELETE == e.getOperation && 12 == Longs.fromByteArray(e.getIdentity.toByteArray)
     })
   }
 

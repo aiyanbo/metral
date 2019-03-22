@@ -1,6 +1,7 @@
 package org.jmotor.metral.service
 
-import org.jmotor.metral.translator.IdentityTranslator
+import com.google.common.primitives.Longs
+import org.jmotor.metral.event.{ EventSource, EventSourceBuilder }
 
 import scala.concurrent.Future
 
@@ -25,8 +26,25 @@ trait NonaService {
 
 }
 
-class NonaUpdateTranslator extends IdentityTranslator {
+class LongIdEventSourceBuilder extends EventSourceBuilder {
 
-  override def translate(args: Array[AnyRef]): String = args(0).asInstanceOf[Nona].id.toString
+  override def build(arguments: Array[AnyRef], returnObject: Any): EventSource = {
+    EventSource.build(Longs.toByteArray(arguments.head.asInstanceOf[Long]))
+  }
 
 }
+
+class NonaUpdateEventSourceBuilder extends EventSourceBuilder {
+  override def build(arguments: Array[AnyRef], returnObject: Any): EventSource = {
+    EventSource.build(Longs.toByteArray(arguments.head.asInstanceOf[Nona].id))
+  }
+}
+
+class LongIdReturnObjectEventSourceBuilder extends EventSourceBuilder {
+
+  override def build(arguments: Array[AnyRef], returnObject: Any): EventSource = {
+    EventSource.build(Longs.toByteArray(returnObject.asInstanceOf[Long]))
+  }
+
+}
+
