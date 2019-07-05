@@ -5,7 +5,7 @@ name := "metral"
 
 organization := "org.jmotor.metral"
 
-scalaVersion := Versions.scala212
+scalaVersion := Versions.scala213
 
 libraryDependencies ++= dependencies
 

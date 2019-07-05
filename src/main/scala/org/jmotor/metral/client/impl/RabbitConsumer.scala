@@ -8,13 +8,13 @@ import com.google.protobuf.{ AbstractMessage, AbstractParser }
 import com.rabbitmq.client.AMQP.Queue
 import com.rabbitmq.client.{ AMQP, DefaultConsumer, Envelope }
 import com.typesafe.config.Config
-import org.apache.logging.log4j.scala.Logging
+import com.typesafe.scalalogging.LazyLogging
 import org.jmotor.metral.api.{ Acknowledge, MessageHandler }
 import org.jmotor.metral.client.Consumer
 import org.jmotor.metral.dto.Message
 import org.jmotor.metral.utils.Retryable
-import scala.concurrent.duration._
 
+import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
 /**
@@ -24,7 +24,7 @@ import scala.util.control.NonFatal
  *
  * @author AI
  */
-class RabbitConsumer(config: Config) extends RabbitClient(config) with Consumer with Logging {
+class RabbitConsumer(config: Config) extends RabbitClient(config) with Consumer with LazyLogging {
   private[this] val maxAttempts = 100
   private[this] val retryDuration = 10.seconds
   private[this] val queues: Cache[String, Queue.BindOk] = CacheBuilder.newBuilder().build()

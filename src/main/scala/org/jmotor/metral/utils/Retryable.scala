@@ -1,6 +1,6 @@
 package org.jmotor.metral.utils
 
-import org.apache.logging.log4j.scala.Logging
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.duration.Duration
 import scala.util.{ Failure, Success, Try }
@@ -12,7 +12,7 @@ import scala.util.{ Failure, Success, Try }
  *
  * @author AI
  */
-object Retryable extends Logging {
+object Retryable extends LazyLogging {
 
   def retry[T](execution: () ⇒ T)(attempts: Int): T = {
     Try(execution()) match {
