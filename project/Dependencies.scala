@@ -7,7 +7,6 @@ object Dependencies {
     val guice = "4.2.2"
     val config = "1.3.4"
     val guava = "28.0-jre"
-    val scala210 = "2.10.7"
     val scala213 = "2.13.0"
     val scalatest = "3.0.8"
     val scala212 = "2.12.8"
