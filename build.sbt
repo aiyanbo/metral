@@ -9,7 +9,7 @@ scalaVersion := Versions.scala213
 
 libraryDependencies ++= dependencies
 
-enablePlugins(ProtocPlugin)
+enablePlugins(ProtobufPlugin)
 
 releaseCrossBuild := true
 
