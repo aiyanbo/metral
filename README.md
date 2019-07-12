@@ -17,7 +17,7 @@ Metral is a `message central` protocol. You can build some business upon it. lik
 To add a dependency on Metral using SBT, use the following:
 
 ```sbtshell
-"org.jmotor.metral" %% "metral" % "1.1.0"
+"org.jmotor.metral" %% "metral" % "1.1.1"
 ```
 
 ## Learn about Metral
