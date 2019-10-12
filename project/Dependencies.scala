@@ -13,7 +13,7 @@ object Dependencies {
     val scala211 = "2.11.12"
     val scalaLogging = "3.9.2"
     val protobufJava = "3.10.0"
-    val scalaLibrary = "2.13.1"
+    val scalaLibrary = "2.13.0"
   }
 
   object Compiles {
