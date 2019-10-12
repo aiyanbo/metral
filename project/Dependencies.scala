@@ -3,16 +3,17 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val log4j2 = "11.0"
     val guice = "4.2.2"
-    val config = "1.3.4"
-    val guava = "28.0-jre"
-    val scala213 = "2.13.0"
+    val log4j2 = "11.0"
+    val config = "1.4.0"
+    val guava = "28.1-jre"
     val scalatest = "3.0.8"
-    val scala212 = "2.12.8"
+    val scala212 = "2.12.10"
+    val amqpClient = "5.7.3"
     val scala211 = "2.11.12"
-    val amqpClient = "5.7.2"
     val scalaLogging = "3.9.2"
+    val protobufJava = "3.10.0"
+    val scalaLibrary = "2.13.1"
   }
 
   object Compiles {
