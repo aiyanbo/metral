@@ -11,6 +11,7 @@ message FireChanged {
   Operation operation = 3;
   int64 timestamp = 4;
   map<string, bytes> attributes = 5;
+  bytes payload = 6;
 }
 
 message Message {
