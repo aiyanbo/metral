@@ -1,12 +1,12 @@
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0")
 
-addSbtPlugin("org.jmotor.sbt" % "sbt-protoc" % "1.0.14")
+addSbtPlugin("org.jmotor.sbt" % "sbt-protoc" % "1.0.15")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.0")
 
 addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.7")
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.11")
+addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.12")
 
 addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.3")
 
